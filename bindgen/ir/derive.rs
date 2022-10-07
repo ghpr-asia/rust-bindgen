@@ -94,6 +94,9 @@ pub trait CanDeriveOrd {
 /// update our understanding as we learn more about each type.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CanDerive {
+    /// Assume already derived
+    AssumeYes,
+
     /// Yes, we can derive automatically.
     Yes,
 
