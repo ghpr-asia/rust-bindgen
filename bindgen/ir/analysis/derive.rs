@@ -144,6 +144,10 @@ impl<'ctx> CannotDerive<'ctx> {
                 .ctx
                 .blocklisted_type_implements_trait(item, self.derive_trait);
             match can_derive {
+                CanDerive::AssumeYes => trace!(
+                    "    assume blocklisted type implements {}",
+                    self.derive_trait
+                ),
                 CanDerive::Yes => trace!(
                     "    blocklisted type explicitly implements {}",
                     self.derive_trait
@@ -166,6 +170,11 @@ impl<'ctx> CannotDerive<'ctx> {
                 self.derive_trait
             );
             return CanDerive::No;
+        }
+
+        if self.derive_trait.assume_by_name(self.ctx, item) {
+            trace!("    assume impl {} for type", self.derive_trait);
+            return CanDerive::AssumeYes;
         }
 
         trace!("ty: {:?}", ty);
@@ -435,6 +444,7 @@ impl<'ctx> CannotDerive<'ctx> {
                     .unwrap_or_default();
 
                 match can_derive {
+                    CanDerive::AssumeYes => trace!("    assuming member {:?} already derives {}", sub_id, self.derive_trait),
                     CanDerive::Yes => trace!("    member {:?} can derive {}", sub_id, self.derive_trait),
                     CanDerive::Manually => trace!("    member {:?} cannot derive {}, but it may be implemented", sub_id, self.derive_trait),
                     CanDerive::No => trace!("    member {:?} cannot derive {}", sub_id, self.derive_trait),
@@ -465,6 +475,15 @@ impl DeriveTrait {
             DeriveTrait::PartialEqOrPartialOrd => {
                 ctx.no_partialeq_by_name(item)
             }
+        }
+    }
+
+    fn assume_by_name(&self, ctx: &BindgenContext, item: &Item) -> bool {
+        match self {
+            DeriveTrait::PartialEqOrPartialOrd => {
+                ctx.assume_impl_partialeq_by_name(item)
+            }
+            _ => false,
         }
     }
 

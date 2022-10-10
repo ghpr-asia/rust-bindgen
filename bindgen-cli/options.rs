@@ -521,6 +521,12 @@ where
                 .value_name("regex")
                 .multiple_occurrences(true)
                 .number_of_values(1),
+            Arg::new("assume-impl-partialeq")
+                .long("assume-impl-partialeq")
+                .help("Assume PartialEq for types matching <regex>.")
+                .value_name("regex")
+                .multiple_occurrences(true)
+                .number_of_values(1),
             Arg::new("must-use-type")
                 .long("must-use-type")
                 .help("Add #[must_use] annotation to types matching <regex>.")
@@ -1043,6 +1049,14 @@ where
     if let Some(no_hash) = matches.values_of("no-hash") {
         for regex in no_hash {
             builder = builder.no_hash(regex);
+        }
+    }
+
+    if let Some(assume_impl_partialeq) =
+        matches.values_of("assume-impl-partialeq")
+    {
+        for regex in assume_impl_partialeq {
+            builder = builder.assume_impl_partialeq(regex);
         }
     }
 

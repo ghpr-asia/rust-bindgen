@@ -357,6 +357,10 @@ impl Builder {
             (&self.options.no_debug_types, "--no-debug"),
             (&self.options.no_default_types, "--no-default"),
             (&self.options.no_hash_types, "--no-hash"),
+            (
+                &self.options.assume_impl_partialeq_types,
+                "--assume-impl-partialeq",
+            ),
             (&self.options.must_use_types, "--must-use-type"),
         ];
 
@@ -1707,6 +1711,13 @@ impl Builder {
         self
     }
 
+    /// Assume an impl for `PartialEq` exists for a given type.
+    /// Regular expressions are supported.
+    pub fn assume_impl_partialeq<T: Into<String>>(mut self, arg: T) -> Builder {
+        self.options.assume_impl_partialeq_types.insert(arg.into());
+        self
+    }
+
     /// Add `#[must_use]` for the given type. Regular
     /// expressions are supported.
     pub fn must_use_type<T: Into<String>>(mut self, arg: T) -> Builder {
@@ -2066,6 +2077,9 @@ struct BindgenOptions {
     /// The set of types that we should not derive `Hash` for.
     no_hash_types: RegexSet,
 
+    /// The set of types assumed to have `PartialEq` for.
+    assume_impl_partialeq_types: RegexSet,
+
     /// The set of types that we should be annotated with `#[must_use]`.
     must_use_types: RegexSet,
 
@@ -2141,6 +2155,7 @@ impl BindgenOptions {
             &mut self.no_debug_types,
             &mut self.no_default_types,
             &mut self.no_hash_types,
+            &mut self.assume_impl_partialeq_types,
             &mut self.must_use_types,
         ];
         let record_matches = self.record_matches;
@@ -2249,6 +2264,7 @@ impl Default for BindgenOptions {
             no_debug_types: Default::default(),
             no_default_types: Default::default(),
             no_hash_types: Default::default(),
+            assume_impl_partialeq_types: Default::default(),
             must_use_types: Default::default(),
             array_pointers_in_arguments: false,
             wasm_import_module_name: None,
